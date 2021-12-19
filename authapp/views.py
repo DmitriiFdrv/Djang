@@ -86,3 +86,4 @@ def send_verify_mail(user):
         [user.email],
         fail_silently=False
     )
+ ###
