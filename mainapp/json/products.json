@@ -1,0 +1,92 @@
+[
+    {
+        "category": "дом",
+        "name": "Нота",
+        "image": "products_images/product-1.jpg",
+        "short_desc": "комфортный стул",
+        "description": "asdasd",
+        "price": "2222.22",
+        "quantity": "17"
+    },
+    {
+        "category": "дом",
+        "name": "Зета",
+        "image": "products_images/product-2.jpg",
+        "short_desc": "комфортный стул",
+        "description": "asddsa",
+        "price": "3434.34",
+        "quantity": "21"
+    },
+    {
+        "category": "дом",
+        "name": "Вита",
+        "image": "products_images/product-3.jpg",
+        "short_desc": "комфортный стул",
+        "description": "asdds",
+        "price": "7777.99",
+        "quantity": "7"
+    },
+    {
+        "category": "офис",
+        "name": "Бета",
+        "image": "products_images/product-4.jpg",
+        "short_desc": "комфортный стул",
+        "description": "для офиса",
+        "price": "2999",
+        "quantity": "27"
+    },
+    {
+        "category": "офис",
+        "name": "Омега",
+        "image": "products_images/product-5.jpg",
+        "short_desc": "комфортный стул",
+        "description": "всс",
+        "price": "333",
+        "quantity": "9"
+    },
+    {
+        "category": "модерн",
+        "name": "Гамма",
+        "image": "products_images/product-6.jpg",
+        "short_desc": "комфортный стул",
+        "description": "всс",
+        "price": "509",
+        "quantity": "18"
+    },
+    {
+        "category": "модерн",
+        "name": "Альфа",
+        "image": "products_images/product-7.jpg",
+        "short_desc": "комфортный стул",
+        "description": "всс",
+        "price": "6999.99",
+        "quantity": "12"
+    },
+    {
+        "category": "классика",
+        "name": "Эпсилон",
+        "image": "products_images/product-8.jpg",
+        "short_desc": "комфортный стул",
+        "description": "всс",
+        "price": "4999.51",
+        "quantity": "25"
+    },
+    {
+        "category": "классика",
+        "name": "Лямда",
+        "image": "products_images/product-9.jpg",
+        "short_desc": "комфортный стул",
+        "description": "всс",
+        "price": "7999",
+        "quantity": "18"
+    },
+    {
+        "category": "классика",
+        "name": "Зета",
+        "image": "products_images/product-10.jpg",
+        "short_desc": "комфортный стул",
+        "description": "всс",
+        "price": "8999",
+        "quantity": "8"
+    }
+]

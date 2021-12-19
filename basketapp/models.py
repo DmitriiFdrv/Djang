@@ -1,39 +1,30 @@
-from django.contrib.auth import get_user_model
 from django.db import models
-
-from django.contrib.auth import get_user_model
-from django.db import models
-
-from authapp.models import ShopUser
 from mainapp.models import Product
+from authapp.models import ShopUser
 
-
-class BasketQuerySet(models.QuerySet):
-    def delete(self):
-        for object in self:
-            object.product.quantity += object.quantity
-            object.product.save()
-        super().delete()
-
-
-class BasketItem(models.Model):
-    objects = BasketQuerySet.as_manager()
-
-    # user = models.ForeignKey(ShopUser, on_delete=models.CASCADE)
-    user = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.CASCADE,
-        related_name='user_basket'
-    )
+class Basket(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=0)
-    add_datetime = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(ShopUser, on_delete=models.CASCADE, related_name='basket')
+    quantity = models.PositiveIntegerField('количество', default=0)
+    add_datetime = models.DateTimeField('время', auto_now_add=True)
 
-    def delete(self, using=None, keep_parents=False):
-        self.product.quantity += self.quantity
-        self.product.save()
-        super().delete(using=None, keep_parents=False)
 
-    @classmethod
-    def get_item(cls, pk):
-        return cls.objects.filter(pk=pk).first()
+    @property
+    def product_cost(self):
+        "return cost of all products this type"
+        return self.product.price * self.quantity
+
+    @property
+    def total_quantity(self):
+        "return total quantity for user"
+        # _items = Basket.objects.filter(user=self.user)
+        # _items = self.user.basket_set.all()
+        return sum(map(lambda x: x.quantity, self.user.basket.all()))
+        # return sum(self.user.basket.values_list('quantity', flat=True))
+
+    @property
+    def total_cost(self):
+        "return total cost for user"
+        # _items = Basket.objects.filter(user=self.user)
+        # _totalcost = sum(list(map(lambda x: x.product_cost, _items)))
+        return sum(map(lambda x: x.product_cost, self.user.basket.all()))

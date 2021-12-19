@@ -1,0 +1,44 @@
+{% extends 'mainapp/base.html' %}
+
+{% block container %}
+    <div class="hero-white">
+        {% include 'mainapp/includes/inc__main_menu.html' %}
+    </div>
+
+    <div class="details">
+        {% include 'mainapp/includes/inc__category_menu.html' %}
+
+        <div class="related">
+            <div class="title clearfix">
+                <h2>Продукты в категории {{ category.name|title }}</h2>
+                <div class="paginator">
+                    {% if products.has_previous %}
+                        <a href="{% url 'main:category_products_pagination' category.pk products.previous_page_number %}">
+                            <
+                        </a>
+                    {% endif %}
+                    <span class="current">страница {{ products.number }} из {{ products.paginator.num_pages }}</span>
+                    {% if products.has_next %}
+                        <a href="{% url 'main:category_products_pagination' category.pk products.next_page_number %}">
+                            >
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="related-products clearfix">
+                {% for product in products %}
+                    <div class="block">
+                        <a href="{% url 'mainapp:product_page' product.pk %}">
+                            <img src="/media/{{ product.image }}" alt="">
+                            <div class="text">
+                                <img src="/static/img/icon-hover.png" alt="img">
+                                <h4>{{ product.name }}</h4>
+                                <p>{{ product.short_desc }}</p>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

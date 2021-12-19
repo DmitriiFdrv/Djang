@@ -1,13 +1,13 @@
-import hashlib
-import random
-
-import django.forms as forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
+import django.forms as forms
+from authapp.models import ShopUser
+import pytz
+from django.conf import settings
+from datetime import datetime
+import hashlib
 
-from authapp.models import ShopUser, ShopUserProfile
 
-
-class ShopUserAuthenticationForm(AuthenticationForm):
+class ShopUserLoginForm(AuthenticationForm):
     class Meta:
         model = ShopUser
         fields = ('username', 'password')
@@ -21,7 +21,8 @@ class ShopUserAuthenticationForm(AuthenticationForm):
 class ShopUserRegisterForm(UserCreationForm):
     class Meta:
         model = ShopUser
-        fields = ('username', 'first_name', 'email', 'password1', 'password1')
+        fields = ('username', 'password1', 'password2', 'email',
+        'first_name', 'last_name', 'age', 'avatar')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,51 +31,40 @@ class ShopUserRegisterForm(UserCreationForm):
             field.help_text = ''
 
     def clean_age(self):
-        age = self.cleaned_data['age']
-        if age < 18:
-            raise forms.ValidationError("Вы слишком молоды!")
-        return age
+        data = self.cleaned_data['age']
+        if data < 18:
+            raise forms.ValidationError("Пользователь слишком молод!")
+        return data
 
-    def save(self, commit=True):
-        user = super().save(commit)
-
+    def save(self, *args, **kwargs):
+        user = super().save(*args, **kwargs)
         user.is_active = False
-        salt = hashlib.sha1(str(random.random()).encode('utf8')).hexdigest()[:6]
-        user.activation_key = hashlib.sha1((user.email + salt).encode('utf8')).hexdigest()
+
+        user.activate_key = hashlib.sha1(user.email.encode('utf8')).hexdigest()
+        user.activate_key_expired = datetime.now(pytz.timezone(settings.TIME_ZONE))
         user.save()
 
         return user
 
 
+
 class ShopUserUpdateForm(UserChangeForm):
     class Meta:
         model = ShopUser
-        fields = (
-            'username', 'first_name', 'last_name', 'email', 'password',
-            'avatar', 'age'
-        )
+        fields = ('username', 'password', 'email',
+        'first_name', 'last_name', 'age', 'avatar')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = f'form-control {field_name}'
-            field.help_text = ''
             if field_name == 'password':
                 field.widget = forms.HiddenInput()
+            else:
+                field.widget.attrs['class'] = f'form-control {field_name}'
+                field.help_text = ''
 
     def clean_age(self):
-        age = self.cleaned_data['age']
-        if age < 18:
-            raise forms.ValidationError("Вы слишком молоды!")
-        return age
-
-
-class ShopUserProfileUpdateForm(forms.ModelForm):
-    class Meta:
-        model = ShopUserProfile
-        exclude = ('user',)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
+        data = self.cleaned_data['age']
+        if data < 18:
+            raise forms.ValidationError("Пользователь слишком молод!")
+        return data

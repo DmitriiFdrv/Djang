@@ -1,58 +1,50 @@
-import random
-
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, get_object_or_404
-
-from mainapp.models import ProductCategory, Product
-
-
-def get_hot_product():
-    # products = Product.objects.all()
-    products_id = Product.objects.values_list('id', flat=True)
-    hot_product_id = random.choice(products_id)
-    return Product.objects.get(pk=hot_product_id)
+from mainapp.models import Product, ProductCategory
+import random
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 
-def related_products(product):
-    return Product.objects.filter(category=product.category).exclude(id=product.id)
+def get_basket(request):
+    return request.user.is_authenticated and request.user.basket.all() or []
+
+
+def get_menu():
+    return ProductCategory.objects.filter(is_active=True)
 
 
 def index(request):
     context = {
         'page_title': 'главная',
+        'basket': get_basket(request),
     }
     return render(request, 'mainapp/index.html', context)
 
 
 def products(request):
-    hot_product = get_hot_product()
-    _related_products = related_products(hot_product)
+    hot_product_pk = random.choice(Product.objects.filter(is_active=True).values_list('pk', flat=True))
+    hot_product = Product.objects.get(pk=hot_product_pk)
+
+    same_products = hot_product.category.product_set.filter(is_active=True).exclude(pk=hot_product.pk)
 
     context = {
         'page_title': 'каталог',
+        'categories': get_menu(),
+        'basket': get_basket(request),
         'hot_product': hot_product,
-        'related_products': _related_products,
+        'same_products': same_products,
     }
     return render(request, 'mainapp/products.html', context)
 
 
-def product_page(request, pk):
-    context = {
-        'page_title': 'продукт',
-        'product': get_object_or_404(Product, pk=pk),
-    }
-    return render(request, 'mainapp/product_page.html', context)
-
-
-def catalog(request, pk, page=1):
-    if int(pk) == 0:
-        category = {'pk': 0, 'name': 'Все'}
-        products = Product.objects.all()
+def category_products(request, pk, page=1):
+    if pk == '0':
+        category = {'pk': 0, 'name': 'все'}
+        products = Product.objects.filter(is_active=True)
     else:
         category = get_object_or_404(ProductCategory, pk=pk)
-        products = Product.objects.filter(category=category)
+        products = category.product_set.filter(is_active=True)
 
-    products_paginator = Paginator(products, 2)
+    products_paginator = Paginator(products, 3)
     try:
         products = products_paginator.page(page)
     except PageNotAnInteger:
@@ -60,38 +52,53 @@ def catalog(request, pk, page=1):
     except EmptyPage:
         products = products_paginator.page(products_paginator.num_pages)
 
+
     context = {
         'page_title': 'каталог',
-        'category': category,
+        'categories': get_menu(),
         'products': products,
+        'category': category,
+        'basket': get_basket(request),
     }
-    return render(request, 'mainapp/catalog.html', context)
+    return render(request, 'mainapp/category_products.html', context)
+
+
+def product_page(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    context = {
+        'page_title': 'каталог',
+        'categories': get_menu(),
+        'category': product.category,
+        'basket': get_basket(request),
+        'product': product,
+    }
+    return render(request, 'mainapp/product.html', context)
 
 
 def contact(request):
     locations = [
         {
             'city': 'Москва',
-            'phone': '+7-123-45-6789',
-            'email': 'master@master.ru',
-            'address': 'Москва, ул. Тверская, 15,'
+            'phone': '+7-495-888-8888',
+            'email': 'info@geekshop.ru',
+            'address': 'В пределах МКАД',
         },
         {
-            'city': 'Ростов-на-Дону',
-            'phone': '+7-987-65-4321',
-            'email': 'master@master.ru',
-            'address': 'Ростов-на-Дону, ул Горького, 100',
+            'city': 'Санкт-Петербург',
+            'phone': '+7-812-888-8888',
+            'email': 'info@geekshop.ru',
+            'address': 'В пределах КАД',
         },
         {
-            'city': 'Иркутск',
-            'phone': '+7-112-445-6677',
-            'email': 'master@master.ru',
-            'address': 'Иркутск, бульвар Гагарина, 21',
-        }
+            'city': 'Владивосток',
+            'phone': '+7-111-888-8888',
+            'email': 'info@geekshop.ru',
+            'address': 'В пределах города',
+        },
     ]
-
     context = {
         'page_title': 'контакты',
         'locations': locations,
+        'basket': get_basket(request),
     }
     return render(request, 'mainapp/contact.html', context)

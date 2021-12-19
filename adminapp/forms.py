@@ -1,26 +1,22 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-
 from authapp.forms import forms
-from mainapp.models import ProductCategory, Product
+from authapp.models import ShopUser
+from mainapp.models import Product, ProductCategory
 
 
-class FormControlMixin:
+class AdminShopUserCreateForm(UserCreationForm):
+    class Meta:
+        model = ShopUser
+        fields = (
+            'username', 'first_name', 'last_name', 'is_superuser',
+            'password1', 'password2', 'email', 'age', 'avatar'
+        )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
             field.help_text = ''
-
-
-class AdminShopUserCreateForm(FormControlMixin, UserCreationForm):
-    class Meta:
-        model = get_user_model()
-        fields = (
-            'username', 'first_name', 'last_name', 'is_superuser',
-            'is_staff', 'password1', 'password2',
-            'email', 'age', 'avatar'
-        )
 
     def clean_age(self):
         data = self.cleaned_data['age']
@@ -28,13 +24,13 @@ class AdminShopUserCreateForm(FormControlMixin, UserCreationForm):
             raise forms.ValidationError("Пользователь слишком молод!")
         return data
 
+
 class AdminShopUserUpdateForm(UserChangeForm):
     class Meta:
-        model = get_user_model()
+        model = ShopUser
         fields = (
             'username', 'first_name', 'last_name', 'is_superuser',
-            'is_staff', 'is_active', 'password',
-            'email', 'age', 'avatar'
+            'password', 'email', 'age', 'avatar', 'is_active', 'is_staff'
         )
 
     def __init__(self, *args, **kwargs):
@@ -52,13 +48,23 @@ class AdminShopUserUpdateForm(UserChangeForm):
         return data
 
 
-class AdminProductCategoryCreateForm(FormControlMixin, forms.ModelForm):
+class AdminProductCategoryUpdateForm(forms.ModelForm):
     class Meta:
         model = ProductCategory
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
 
-class AdminProductUpdateForm(FormControlMixin, forms.ModelForm):
+
+class AdminProductUpdateForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'

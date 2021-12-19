@@ -1,13 +1,14 @@
 {% extends 'mainapp/base.html' %}
 
+
 {% block container %}
     <div class="hero">
         {% include 'mainapp/includes/inc__main_menu.html' %}
         <h1>наши контакты</h1>
     </div>
 
-    {% if locations %}
-        <div class="location">
+    <div class="location">
+        {% if locations %}
             {% for item in locations %}
                 <div class="location-1">
                     <i class="fa fa-map-marker fa-5x"></i>
@@ -26,8 +27,8 @@
                     </div>
                 </div>
             {% endfor %}
-        </div>
-    {% else %}
-        <h3>Данных нет</h3>
-    {% endif %}
+        {% else %}
+            <h3>Данные загружаются</h3>
+        {% endif %}
+    </div>
 {% endblock %}
